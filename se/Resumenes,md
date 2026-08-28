@@ -1,0 +1,45 @@
+
+### **1. PD1.pdf: Ingeniería del Conocimiento y Arquitectura de Sistemas Expertos**
+Esta fuente académica se enfoca en la infraestructura del software de Inteligencia Artificial, detallando cómo se codifica, optimiza y gestiona el conocimiento complejo.
+
+* **Representación del Conocimiento:** Analiza múltiples esquemas para capturar la experiencia humana. Explora las **representaciones lógicas** y sus limitaciones
+ frente a entornos reales y cambiantes (*frame problem*), proponiendo extensiones como la **lógica por defecto** (no monótona) y la **lógica difusa**. Asimismo,
+  profundiza en las **redes semánticas** y sus dimensiones organizacionales (clasificación, agregación, jerarquías de herencia *is-a* y particiones); las 
+  **representaciones procedimentales** (sistemas basados en procesos activos como PLANNER y arquitecturas de pizarra o *blackboards*); y los **marcos (frames) 
+  de Minsky**, idóneos para representar situaciones estereotipadas mediante ranuras o *slots* funcionales.
+* **Estrategias de Resolución de Problemas:** Describe cómo las dimensiones del problema condicionan la búsqueda de soluciones. Aborda técnicas específicas como
+ los factores de certeza en entornos con incertidumbre, el cálculo situacional para datos cambiantes en el tiempo, el método de **generar y testar** (utilizado 
+ en DENDRAL o GAl), la exploración de configuraciones sin *backtracking* (sistema R1/XCON), el refinamiento descendente jerárquico (ABSTRIPS) y la planificación
+  oportunista con propagación de restricciones bajo el principio del menos expuesto (*least commitment* en MOLGEN).
+* **El Algoritmo RETE:** Explica en detalle este célebre algoritmo de reconocimiento rápido de patrones diseñado para optimizar el ciclo "reconocer-actuar" en
+ motores de producción (como OPS5). El algoritmo evita rehacer cálculos duplicados o evaluar la memoria de trabajo desde cero en cada ciclo. Para ello, compila
+  las reglas en un grafo de flujo donde los **testigos de una entrada (nodos Alfa)** verifican condiciones constantes de los objetos, y los **testigos de dos 
+  entradas (nodos Beta)** unifican y comprueban si múltiples condiciones se satisfacen en paralelo.
+* **Sistemas de Mantenimiento del Razonamiento (SMR) y Restricciones:** Introduce los SMR como herramientas para registrar dependencias lógicas a través de 
+**justificaciones** (deducciones) e inconsistencias (**nogoods**), permitiendo búsquedas incrementales y un razonamiento no monótono eficiente. Finalmente, 
+formaliza los Problemas de Satisfacción de Restricciones (PSR) y analiza algoritmos de optimización para redes de restricciones (como *Backmarking* y *Forward 
+Checking*) que evitan evaluaciones redundantes.
+
+---
+
+### **2. Sistemas_Expertos_Basados_en_Reglas.pdf: Fundamentos y Control Lógico**
+Este texto pedagógico ilustra el uso de la lógica determinista para resolver problemas prácticos mediante motores basados en reglas y cómo gestionar sus 
+vulnerabilidades inherentes.
+
+* **Estructura y Funcionamiento del Motor:** El sistema se compone de una **base de conocimiento** (variables y reglas "Si premisa, entonces conclusión")
+ y un **motor de inferencia**. El autor ilustra esto con un modelo lógico para transacciones en un **cajero automático**, gobernado por variables de estado
+  como el saldo, NIP o tarjeta. El motor aplica la lógica clásica apoyándose en dos reglas fundamentales: **Modus Ponens** (deriva conclusiones directas de
+   premisas verdaderas) y **Modus Tollens** (deduce la falsedad de la premisa a partir de la falsedad de la conclusión).
+* **Estrategias de Inferencia:** Compara de forma práctica los métodos para obtener conclusiones compuestas:
+  * **Encadenamiento de Reglas (Hacia Adelante):** Parte de los hechos conocidos y propaga conclusiones de manera iterativa a través de las reglas que se 
+  van activando.
+  * **Encadenamiento Orientado a un Objetivo (Hacia Atrás):** Toma un nodo objetivo final (hipótesis) y navega de forma inversa a través de las reglas para
+   comprobar sus precondiciones, interrogando de forma interactiva al usuario si falta información clave en el camino.
+* **Control de la Coherencia:** Aborda la necesidad vital de prevenir la entrada de conocimiento contradictorio. Un conjunto de reglas es **coherente** si 
+existe al menos una combinación de variables que conduzca a conclusiones no contradictorias. Las combinaciones lógicas que desencadenan contradicciones se
+ definen como **valores no factibles**; el subsistema de control las detecta y las descarta automáticamente de la interfaz del usuario para salvaguardar 
+ la consistencia de los hechos.
+* **Tratamiento de la Incertidumbre:** Identifica las limitaciones de la lógica determinista (donde las implicaciones son absolutas, con probabilidad de 1 o 0)
+ en dominios de diagnóstico reales donde un hecho no garantiza al 100% una conclusión. Plantea la transición a una **lógica incierta** basada en probabilidades
+  condicionales (\\(Pr(B|A)\\)). Advierte que el principal obstáculo técnico es la **propagación de la incertidumbre**, dado que concatenar múltiples reglas 
+  inciertas puede conducir a un número infinito de valores inciertos, lo que hace indispensables los modelos basados en redes probabilísticas.
