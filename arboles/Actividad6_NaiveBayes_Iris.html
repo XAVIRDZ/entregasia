@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Actividad 6: Naive Bayes en R con Iris</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    max-width: 900px;
+    margin: 30px auto;
+    padding: 0 20px;
+    color: #2d3748;
+    background-color: #fafafa;
+    line-height: 1.6;
+  }
+  header {
+    background-color: #5b21b6;
+    color: white;
+    padding: 24px 28px;
+    border-radius: 8px;
+    margin-bottom: 24px;
+  }
+  header h1 {
+    margin: 0 0 6px 0;
+    font-size: 20pt;
+  }
+  header p {
+    margin: 0;
+    color: #ddd6fe;
+    font-size: 10pt;
+  }
+  h2 {
+    color: #4c1d95;
+    border-left: 4px solid #e11d48;
+    padding-left: 8px;
+    margin-top: 24px;
+  }
+  pre {
+    background-color: #1e1e2e;
+    color: #f8f8f2;
+    padding: 14px 18px;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-family: 'Consolas', monospace;
+    font-size: 9pt;
+  }
+  code {
+    font-family: 'Consolas', monospace;
+    background-color: #f3f4f6;
+    color: #b91c1c;
+    padding: 2px 5px;
+    border-radius: 3px;
+  }
+  pre code {
+    background-color: transparent;
+    color: inherit;
+    padding: 0;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+    background: white;
+  }
+  th, td {
+    border: 1px solid #e5e7eb;
+    padding: 8px 12px;
+    text-align: left;
+  }
+  th {
+    background-color: #312e81;
+    color: white;
+  }
+  tr:nth-child(even) {
+    background-color: #f9fafb;
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Actividad 6: Aplicación del Algoritmo Naive Bayes en R al Dataset Iris</h1>
+  <p><strong>Autor:</strong> Xavi Rdz &bull; <strong>Herramienta:</strong> Lenguaje R (`e1071`)</p>
+</header>
+
+<h2>1. Introducción y Fundamentos Teóricos</h2>
+<p>El clasificador <strong>Naive Bayes</strong> es un método probabilístico supervisado basado en el <strong>Teorema de Bayes</strong>, que asume que todas las características predictoras son condicionalmente independientes entre sí dada la clase:</p>
+<p>$$P(C_k \mid \mathbf{x}) = \frac{P(C_k) \cdot \prod_{i=1}^n P(x_i \mid C_k)}{P(\mathbf{x})}$$</p>
+<p>Donde:</p>
+<ul>
+  <li><strong>P(C<sub>k</sub>):</strong> Probabilidad a priori de pertenecer a la especie <em>C<sub>k</sub></em>.</li>
+  <li><strong>P(x<sub>i</sub> | C<sub>k</sub>):</strong> Verosimilitud de la característica condicional a la clase.</li>
+  <li>Dado que las cuatro variables biométricas del conjunto Iris son continuas, el modelo ajusta una distribución <strong>Normal (Gaussiana)</strong> con parámetros &mu; (media) y &sigma; (desviación estándar).</li>
+</ul>
+
+<h2>2. Preparación del Entorno y Carga de Datos</h2>
+<p>Utilizamos el paquete <code>e1071</code>, el cual implementa el algoritmo clásico de Naive Bayes en R:</p>
+<pre><code># Si no está instalado: install.packages("e1071")
+library(e1071)
+
+# Cargar el dataset nativo de Iris
+data(iris)
+
+# Inspeccionar estructura general
+str(iris)
+head(iris)
+table(iris$Species)</code></pre>
+
+<h2>3. División en Datos de Entrenamiento y Prueba</h2>
+<p>Dividimos el conjunto de 150 instancias en un <strong>80% de entrenamiento</strong> (120 flores) y un <strong>20% de prueba</strong> (30 flores):</p>
+<pre><code>set.seed(123)
+indices &lt;- sample(1:nrow(iris), size = 0.8 * nrow(iris))
+train_data &lt;- iris[indices, ]
+test_data  &lt;- iris[-indices, ]
+
+cat("Flores en entrenamiento:", nrow(train_data), "\n")
+cat("Flores en prueba:", nrow(test_data), "\n")</code></pre>
+
+<h2>4. Entrenamiento del Clasificador con <code>naiveBayes</code></h2>
+<p>Ajustamos el modelo sobre las 4 variables predictoras:</p>
+<pre><code># naiveBayes(fórmula, data)
+modelo_nb &lt;- naiveBayes(Species ~ ., data = train_data)
+
+# Imprimir el modelo con las medias y desviaciones estimadas
+print(modelo_nb)</code></pre>
+
+<h2>5. Predicción y Evaluación de Desempeño</h2>
+<p>Evaluamos el modelo con el subconjunto de prueba <code>test_data</code>:</p>
+<pre><code># Generar predicciones categóricas
+predicciones &lt;- predict(modelo_nb, test_data)
+
+# Matriz de Confusión
+matriz_conf &lt;- table(Predicho = predicciones, Real = test_data$Species)
+print(matriz_conf)
+
+# Exactitud global (Accuracy)
+exactitud &lt;- sum(diag(matriz_conf)) / sum(matriz_conf)
+cat("Exactitud alcanzada en el conjunto de prueba:", round(exactitud * 100, 2), "%\n")</code></pre>
+
+<h2>6. Conclusiones</h2>
+<ol>
+  <li><strong>Separabilidad de Iris-setosa:</strong> El modelo identifica a la especie <em>setosa</em> con un 100% de precisión debido a la brecha clara en las medidas del pétalo.</li>
+  <li><strong>Distribución Gaussiana:</strong> Entre <em>versicolor</em> y <em>virginica</em> existe un ligero solapamiento natural que el modelo estima probabilísticamente con alta precisión (&gt;95%).</li>
+  <li><strong>Eficiencia en R:</strong> Mediante el paquete <code>e1071</code>, la implementación es compacta, rápida y adecuada para variables biométricas continuas.</li>
+</ol>
+</body>
+</html>

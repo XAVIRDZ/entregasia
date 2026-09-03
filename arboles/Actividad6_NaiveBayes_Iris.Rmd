@@ -1,0 +1,48 @@
+---
+title: "Actividad 6: Aplicación del Algoritmo Naive Bayes en R al Dataset Iris"
+author: "Xavi Rdz"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    theme: flatly
+    highlight: tango
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+# Si no está instalado: install.packages("e1071")
+library(e1071)
+
+# Cargar dataset Iris nativo de R
+data(iris)
+
+# Explorar los primeros registros
+head(iris)
+summary(iris)
+set.seed(123)
+indices <- sample(1:nrow(iris), size = 0.8 * nrow(iris))
+train_data <- iris[indices, ]
+test_data  <- iris[-indices, ]
+
+cat("Tamaño conjunto de entrenamiento:", nrow(train_data), "\n")
+cat("Tamaño conjunto de prueba:", nrow(test_data), "\n")
+modelo_nb <- naiveBayes(Species ~ ., data = train_data)
+
+# Mostramos los parámetros aprendidos (probabilidades a priori, medias y desv. estándar)
+print(modelo_nb)
+# 1. Predicciones categóricas
+predicciones <- predict(modelo_nb, test_data)
+
+# 2. Matriz de confusión
+matriz_conf <- table(Predicho = predicciones, Real = test_data$Species)
+print(matriz_conf)
+
+# 3. Exactitud global (Accuracy)
+exactitud <- sum(diag(matriz_conf)) / sum(matriz_conf)
+cat("Exactitud alcanzada en prueba:", round(exactitud * 100, 2), "%\n")
+
+# 4. Probabilidades a posteriori de las primeras muestras
+prob_posteriori <- predict(modelo_nb, test_data, type = "raw")
+head(round(prob_posteriori, 4))
