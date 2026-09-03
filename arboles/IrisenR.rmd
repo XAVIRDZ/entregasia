@@ -1,0 +1,2 @@
+link cuaderno colab de la practica de iris en r 
+https://colab.research.google.com/drive/1qzeZIoR1Ypx4YIcUFBnzZdPW5PHsT8H8?usp=sharing
