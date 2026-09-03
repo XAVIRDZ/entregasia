@@ -1,0 +1,130 @@
+---
+title: "Actividad 8: Clasificador Naive Bayes en la FCI - Rendimiento Estudiantil"
+author: "Xavi Rdz"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    theme: flatly
+    highlight: tango
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+## 1. Planteamiento del Problema
+
+Se analiza una muestra de 30 estudiantes de la Facultad de Ciencias de la Información (FCI) para predecir y clasificar su **Rendimiento Académico** mediante Naive Bayes a partir de cuatro atributos cualitativos.
+
+### Variables Predictoras (Features):
+* **TiempoEstudio:** Alto (≥ 15 h/sem), Medio (8-14 h/sem), Bajo (≤ 7 h/sem).
+* **Asistencia:** Alta (≥ 90%), Media (75-89%), Baja (≤ 74%).
+* **Participacion:** Alta (≥ 80%), Media (50-79%), Baja (≤ 49%).
+* **SituacionEcon:** Buena, Mala.
+
+### Variable Objetivo (Target):
+* **Rendimiento:** Excelente (≥ 90 pts), Bueno (80-89 pts), Regular (70-79 pts), Deficiente (≤ 69 pts).
+
+---
+
+## 2. Tabulación de la Muestra en R
+
+```{r}
+library(e1071)
+
+datos_fci <- data.frame(
+  Estudiante = 1:30,
+  TiempoEstudio = factor(c(
+    "Alto", "Medio", "Bajo", "Alto", "Medio", "Alto", "Bajo", "Medio", "Alto", "Bajo",
+    "Alto", "Medio", "Bajo", "Alto", "Medio", "Bajo", "Alto", "Medio", "Bajo", "Alto",
+    "Medio", "Bajo", "Alto", "Medio", "Bajo", "Alto", "Medio", "Bajo", "Alto", "Medio"
+  ), levels = c("Bajo", "Medio", "Alto")),
+  Asistencia = factor(c(
+    "Alta", "Media", "Baja", "Alta", "Media", "Alta", "Baja", "Alta", "Media", "Baja",
+    "Alta", "Media", "Baja", "Alta", "Baja", "Baja", "Alta", "Media", "Baja", "Alta",
+    "Media", "Baja", "Alta", "Media", "Baja", "Alta", "Media", "Baja", "Alta", "Media"
+  ), levels = c("Baja", "Media", "Alta")),
+  Participacion = factor(c(
+    "Alta", "Baja", "Baja", "Media", "Media", "Alta", "Baja", "Media", "Alta", "Media",
+    "Alta", "Media", "Baja", "Alta", "Baja", "Baja", "Alta", "Media", "Baja", "Media",
+    "Media", "Baja", "Alta", "Media", "Baja", "Alta", "Media", "Baja", "Alta", "Baja"
+  ), levels = c("Baja", "Media", "Alta")),
+  SituacionEcon = factor(c(
+    "Buena", "Mala", "Mala", "Buena", "Buena", "Buena", "Mala", "Buena", "Buena", "Mala",
+    "Buena", "Buena", "Mala", "Buena", "Mala", "Mala", "Buena", "Buena", "Mala", "Buena",
+    "Buena", "Mala", "Buena", "Mala", "Mala", "Buena", "Buena", "Mala", "Buena", "Mala"
+  ), levels = c("Mala", "Buena")),
+  Rendimiento = factor(c(
+    "Excelente", "Regular", "Deficiente", "Bueno", "Bueno", "Excelente", "Deficiente", "Bueno", "Excelente", "Regular",
+    "Excelente", "Bueno", "Deficiente", "Excelente", "Deficiente", "Deficiente", "Excelente", "Bueno", "Deficiente", "Bueno",
+    "Bueno", "Deficiente", "Excelente", "Regular", "Deficiente", "Excelente", "Bueno", "Deficiente", "Excelente", "Regular"
+  ), levels = c("Deficiente", "Regular", "Bueno", "Excelente"))
+)
+
+head(datos_fci, 10)
+```
+
+---
+
+## 3. División: 80% Entrenamiento y 20% Prueba
+
+```{r}
+train_set <- datos_fci[1:24, -1]  # 24 estudiantes para entrenar
+test_set  <- datos_fci[25:30, -1] # 6 estudiantes para prueba
+
+cat("Entrenamiento (80%):", nrow(train_set), "estudiantes\n")
+cat("Prueba (20%):", nrow(test_set), "estudiantes\n")
+```
+
+---
+
+## 4. Entrenamiento del Clasificador Naive Bayes
+
+```{r}
+modelo_nb_fci <- naiveBayes(Rendimiento ~ ., data = train_set)
+print(modelo_nb_fci)
+```
+
+---
+
+## 5. Predicción y Matriz de Confusión
+
+```{r}
+predicciones <- predict(modelo_nb_fci, test_set)
+
+# Tabla comparativa
+comparativa <- data.frame(
+  Estudiante = 25:30,
+  Real       = test_set$Rendimiento,
+  Predicho   = predicciones,
+  Acierto    = test_set$Rendimiento == predicciones
+)
+print(comparativa)
+
+# Matriz de Confusión
+matriz_conf <- table(Predicho = predicciones, Real = test_set$Rendimiento)
+print(matriz_conf)
+```
+
+### Tabla Visual de la Matriz de Confusión:
+
+| Predicho \ Real | Deficiente | Regular | Bueno | Excelente | Total Predicho |
+|:---|:---:|:---:|:---:|:---:|:---:|
+| **Deficiente** | **2** | 0 | 0 | 0 | 2 |
+| **Regular**    | 0 | **1** | 0 | 0 | 1 |
+| **Bueno**      | 0 | 0 | **1** | 0 | 1 |
+| **Excelente**  | 0 | 0 | 0 | **2** | 2 |
+| **Total Real** | **2** | **1** | **1** | **2** | **6** |
+
+---
+
+## 6. Métricas y Conclusiones
+
+```{r}
+exactitud <- sum(diag(matriz_conf)) / sum(matriz_conf)
+cat("Exactitud alcanzada:", round(exactitud * 100, 2), "%\n")
+```
+
+1. **Rendimiento:** El modelo clasificó de forma correcta los 6 casos de prueba (100% de exactitud).
+2. **Capacidad de generalización:** Las variables académicas (*TiempoEstudio* y *Asistencia*) permitieron discriminar los rangos de desempeño de forma consistente.

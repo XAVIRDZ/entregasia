@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Actividad 8: Naive Bayes FCI - Rendimiento Estudiantil</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    max-width: 950px;
+    margin: 30px auto;
+    padding: 0 20px;
+    color: #2d3748;
+    background-color: #fafafa;
+    line-height: 1.6;
+  }
+  header {
+    background-color: #1e3a8a;
+    color: white;
+    padding: 24px 28px;
+    border-radius: 8px;
+    margin-bottom: 24px;
+  }
+  header h1 {
+    margin: 0 0 6px 0;
+    font-size: 20pt;
+  }
+  header p {
+    margin: 0;
+    color: #bfdbfe;
+    font-size: 10pt;
+  }
+  h2 {
+    color: #1e3a8a;
+    border-left: 4px solid #3b82f6;
+    padding-left: 8px;
+    margin-top: 28px;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 18px 0;
+    background: white;
+  }
+  th, td {
+    border: 1px solid #cbd5e1;
+    padding: 9px 12px;
+    text-align: center;
+  }
+  th {
+    background-color: #1e3a8a;
+    color: white;
+  }
+  tr:nth-child(even) {
+    background-color: #f8fafc;
+  }
+  .highlight {
+    background-color: #dcfce7;
+    font-weight: bold;
+    color: #166534;
+  }
+  pre {
+    background-color: #1e1e2e;
+    color: #f8f8f2;
+    padding: 14px;
+    border-radius: 6px;
+    font-family: 'Consolas', monospace;
+    font-size: 9pt;
+    overflow-x: auto;
+  }
+  .metrica {
+    background-color: #eff6ff;
+    border: 1px solid #bfdbfe;
+    padding: 14px;
+    border-radius: 6px;
+    margin-top: 15px;
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Actividad 8: Clasificador Naive Bayes en la FCI - Rendimiento Estudiantil</h1>
+  <p><strong>Autor:</strong> Xavi Rdz &bull; <strong>Facultad:</strong> FCI &bull; <strong>Herramienta:</strong> Lenguaje R (`e1071`)</p>
+</header>
+
+<h2>1. Planteamiento del Problema</h2>
+<p>Se evalúa una muestra de 30 estudiantes en la Facultad de Ciencias de la Información (FCI) para predecir su nivel de <strong>Rendimiento Académico</strong> a partir de 4 variables cualitativas (Tiempo de estudio, Asistencia, Participación y Situación económica).</p>
+
+<h2>2. Partición de Datos: 80% Entrenamiento y 20% Prueba</h2>
+<p>De los 30 registros tabulados, <strong>24 estudiantes (80%)</strong> se utilizaron para entrenar el clasificador probabilístico Naive Bayes, y <strong>6 estudiantes (20%)</strong> se reservaron como conjunto de prueba no visto por el modelo.</p>
+
+<h2>3. Tabla de Evaluación del Conjunto de Prueba (20%)</h2>
+<table>
+  <thead>
+    <tr>
+      <th># Est.</th>
+      <th>Tiempo Estudio</th>
+      <th>Asistencia</th>
+      <th>Participación</th>
+      <th>Situación Econ.</th>
+      <th>Valor Real</th>
+      <th>Predicción Naive Bayes</th>
+      <th>¿Coincide?</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>25</td>
+      <td>Bajo</td>
+      <td>Baja</td>
+      <td>Baja</td>
+      <td>Mala</td>
+      <td><strong>Deficiente</strong></td>
+      <td>Deficiente</td>
+      <td><span class="highlight">Sí</span></td>
+    </tr>
+    <tr>
+      <td>26</td>
+      <td>Alto</td>
+      <td>Alta</td>
+      <td>Alta</td>
+      <td>Buena</td>
+      <td><strong>Excelente</strong></td>
+      <td>Excelente</td>
+      <td><span class="highlight">Sí</span></td>
+    </tr>
+    <tr>
+      <td>27</td>
+      <td>Medio</td>
+      <td>Media</td>
+      <td>Media</td>
+      <td>Buena</td>
+      <td><strong>Bueno</strong></td>
+      <td>Bueno</td>
+      <td><span class="highlight">Sí</span></td>
+    </tr>
+    <tr>
+      <td>28</td>
+      <td>Bajo</td>
+      <td>Baja</td>
+      <td>Baja</td>
+      <td>Mala</td>
+      <td><strong>Deficiente</strong></td>
+      <td>Deficiente</td>
+      <td><span class="highlight">Sí</span></td>
+    </tr>
+    <tr>
+      <td>29</td>
+      <td>Alto</td>
+      <td>Alta</td>
+      <td>Alta</td>
+      <td>Buena</td>
+      <td><strong>Excelente</strong></td>
+      <td>Excelente</td>
+      <td><span class="highlight">Sí</span></td>
+    </tr>
+    <tr>
+      <td>30</td>
+      <td>Medio</td>
+      <td>Media</td>
+      <td>Baja</td>
+      <td>Mala</td>
+      <td><strong>Regular</strong></td>
+      <td>Regular</td>
+      <td><span class="highlight">Sí</span></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>4. Matriz de Confusión (4x4)</h2>
+<p>Disposición: Las <strong>filas</strong> representan el valor predicho por el clasificador Naive Bayes, y las <strong>columnas</strong> representan el valor real del estudiante.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Predicho \ Real</th>
+      <th>Deficiente</th>
+      <th>Regular</th>
+      <th>Bueno</th>
+      <th>Excelente</th>
+      <th>Total Predicho</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Deficiente</th>
+      <td class="highlight">2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>Regular</th>
+      <td>0</td>
+      <td class="highlight">1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>Bueno</th>
+      <td>0</td>
+      <td>0</td>
+      <td class="highlight">1</td>
+      <td>0</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>Excelente</th>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td class="highlight">2</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>Total Real</th>
+      <td>2</td>
+      <td>1</td>
+      <td>1</td>
+      <td>2</td>
+      <td><strong>6 (100%)</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="metrica">
+  <h3>Métricas de Rendimiento Obtenidas:</h3>
+  <ul>
+    <li><strong>Total de casos evaluados (Prueba 20%):</strong> 6 estudiantes.</li>
+    <li><strong>Aciertos en la diagonal principal:</strong> 2 (Deficiente) + 1 (Regular) + 1 (Bueno) + 2 (Excelente) = <strong>6 aciertos</strong>.</li>
+    <li><strong>Casos erróneos (fuera de diagonal):</strong> 0.</li>
+    <li><strong>Exactitud global (Accuracy):</strong> 6 / 6 = <strong>100.0%</strong>.</li>
+  </ul>
+</div>
+
+<h2>5. Código en R Implementado</h2>
+<pre><code>library(e1071)
+
+# Entrenamiento con 80% y prueba con 20%
+modelo_nb &lt;- naiveBayes(Rendimiento ~ ., data = train_set)
+predicciones &lt;- predict(modelo_nb, test_set)
+
+# Generación de la Matriz de Confusión
+matriz_conf &lt;- table(Predicho = predicciones, Real = test_set$Rendimiento)
+print(matriz_conf)
+
+# Exactitud
+exactitud &lt;- sum(diag(matriz_conf)) / sum(matriz_conf)
+cat("Exactitud:", exactitud * 100, "%\n")</code></pre>
+
+<h2>6. Conclusiones</h2>
+<ol>
+  <li>El modelo Naive Bayes discreto estima con precisión las probabilidades condicionales a priori para cada combinación categórica.</li>
+  <li>Las variables <em>TiempoEstudio</em> y <em>Asistencia</em> actúan como las características de mayor peso probabilístico para discriminar los niveles extremos de rendimiento académico.</li>
+</ol>
+</body>
+</html>
